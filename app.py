@@ -44,8 +44,6 @@ class FluxGymApp:
         os.environ["GRADIO_SERVER_NAME"] = "0.0.0.0"
         os.environ["GRADIO_SERVER_PORT"] = str(GRADIO_PORT)
         os.environ["GRADIO_SERVER_HEARTBEAT_TIMEOUT"] = "7200"
-        os.environ["TRANSFORMERS_OFFLINE"] = "1" 
-        os.environ["HF_HUB_ENABLE_HF_TRANSFER"] = "1" 
         cmd = "python app.py"
         subprocess.Popen(cmd, shell=True)
 
