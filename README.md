@@ -54,7 +54,7 @@ modal run app.py
 
 ## Architecture
 
-The application uses Modal's serverless infrastructure to run a Gradio-based web interface for training Stable Diffusion models. It utilizes persistent volume storage for outputs and integrates with HuggingFace for model management.
+The application uses Modal's serverless infrastructure to run a Gradio-based web interface for training FLUX models. It utilizes persistent volume storage for outputs and integrates with HuggingFace for model management.
 
 ## License
 
