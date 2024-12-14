@@ -35,14 +35,9 @@ modal secret create huggingface-secret HUGGINGFACE_SECRET=your_token_here
 
 ## Running the Application
 
-1. Deploy the application:
+1. To run on modal:
 ```bash
-modal deploy app.py
-```
-
-2. To run locally:
-```bash
-modal run app.py
+modal serve app.py
 ```
 
 ## Environment
