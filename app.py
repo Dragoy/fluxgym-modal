@@ -9,7 +9,10 @@ tag = f"{cuda_version}-{flavor}-{operating_sys}"
 
 GRADIO_PORT = 7860
 
-volume = Volume.from_name("fluxgym-output", create_if_missing=True)
+# Define Modal volumes
+output_volume = Volume.from_name("fluxgym-output", create_if_missing=True)
+models_volume = Volume.from_name("fluxgym-models", create_if_missing=True)
+datasets_volume = Volume.from_name("fluxgym-datasets", create_if_missing=True)
 
 image = (
     Image.from_registry(f"nvidia/cuda:{tag}", add_python="3.11")
@@ -18,7 +21,8 @@ image = (
     .run_commands("cd /root/fluxgym && pip install -r requirements.txt")
     .run_commands("cd /root/fluxgym && git clone -b sd3 https://github.com/kohya-ss/sd-scripts.git /root/fluxgym/sd-scripts")
     .run_commands("cd /root/fluxgym/sd-scripts && pip install -r requirements.txt")
-    .run_commands("rm -rf /root/fluxgym/outputs")
+    # Ensure mount points don't exist
+    .run_commands("rm -rf /root/fluxgym/outputs /root/fluxgym/models /root/fluxgym/datasets")
 )
 
 app = App(
@@ -28,12 +32,16 @@ app = App(
 )
 
 @app.cls(
-    gpu="A100",
+    gpu="A10G",
     image=image,
     concurrency_limit=1,
     timeout=7200,
     allow_concurrent_inputs=100,
-    volumes={"/root/fluxgym/outputs": volume}
+    volumes={
+        "/root/fluxgym/outputs": output_volume,
+        "/root/fluxgym/models": models_volume,
+        "/root/fluxgym/datasets": datasets_volume
+    }
 )
 
 class FluxGymApp:
@@ -44,6 +52,15 @@ class FluxGymApp:
         os.environ["GRADIO_SERVER_NAME"] = "0.0.0.0"
         os.environ["GRADIO_SERVER_PORT"] = str(GRADIO_PORT)
         os.environ["GRADIO_SERVER_HEARTBEAT_TIMEOUT"] = "7200"
+        
+        # Ensure models directory structure exists
+        os.makedirs("/root/fluxgym/models/unet", exist_ok=True)
+        os.makedirs("/root/fluxgym/models/clip", exist_ok=True)
+        os.makedirs("/root/fluxgym/models/vae", exist_ok=True)
+        
+        # Ensure datasets directory exists
+        os.makedirs("/root/fluxgym/datasets", exist_ok=True)
+        
         cmd = "python app.py"
         subprocess.Popen(cmd, shell=True)
 
